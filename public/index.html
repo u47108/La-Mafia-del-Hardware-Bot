@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Mafia del Hardware Bot - Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .header {
+            background: rgba(0, 0, 0, 0.2);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .header h1 {
+            font-size: 2rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .header p {
+            opacity: 0.8;
+            font-size: 1.1rem;
+        }
+        
+        .container {
+            flex: 1;
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .stat-card {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            padding: 1.5rem;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: transform 0.3s ease;
+        }
+        
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .stat-title {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .stat-value {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+        
+        .status {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.9rem;
+        }
+        
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            animation: pulse 2s infinite;
+        }
+        
+        .status-online .status-dot {
+            background-color: #4CAF50;
+        }
+        
+        .status-offline .status-dot {
+            background-color: #f44336;
+        }
+        
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+        
+        .actions {
+            display: flex;
+            gap: 1rem;
+            flex-wrap: wrap;
+            margin-top: 2rem;
+        }
+        
+        .btn {
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+        
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border: none;
+        }
+        
+        .logs {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 15px;
+            padding: 1.5rem;
+            margin-top: 2rem;
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .logs h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+        
+        .log-entry {
+            padding: 0.5rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+        }
+        
+        .log-entry:last-child {
+            border-bottom: none;
+        }
+        
+        .footer {
+            background: rgba(0, 0, 0, 0.2);
+            padding: 1rem 2rem;
+            text-align: center;
+            opacity: 0.8;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🏴‍☠️ La Mafia del Hardware Bot</h1>
+        <p>Panel de control del bot de Discord</p>
+    </div>
+    
+    <div class="container">
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-title">Estado del Bot</div>
+                <div class="stat-value" id="bot-status">Conectando...</div>
+                <div class="status" id="status-indicator">
+                    <div class="status-dot"></div>
+                    <span>Verificando conexión</span>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Servidores</div>
+                <div class="stat-value" id="guild-count">0</div>
+                <div class="status">Total de servidores</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Usuarios</div>
+                <div class="stat-value" id="user-count">0</div>
+                <div class="status">Miembros totales</div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-title">Tiempo Activo</div>
+                <div class="stat-value" id="uptime">0h 0m</div>
+                <div class="status">Desde último reinicio</div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button class="btn btn-primary" onclick="restartBot()">🔄 Reiniciar Bot</button>
+            <button class="btn" onclick="refreshStatus()">📊 Actualizar Estado</button>
+            <a href="https://discord.com/developers/applications" class="btn" target="_blank">⚙️ Discord Developer Portal</a>
+        </div>
+        
+        <div class="logs">
+            <h3>📋 Registro de Actividad</h3>
+            <div id="log-container">
+                <div class="log-entry">Iniciando sistema...</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>&copy; 2025 La Mafia del Hardware - Bot de Discord desarrollado con ❤️</p>
+    </div>
+
+    <script>
+        let ws;
+        
+        function connectWebSocket() {
+            const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+            const wsUrl = `${protocol}//${window.location.host}/ws`;
+            
+            ws = new WebSocket(wsUrl);
+            
+            ws.onopen = function() {
+                addLog('✅ Conectado al WebSocket');
+                updateConnectionStatus(true);
+            };
+            
+            ws.onmessage = function(event) {
+                const data = JSON.parse(event.data);
+                handleWebSocketMessage(data);
+            };
+            
+            ws.onclose = function() {
+                addLog('❌ Conexión WebSocket perdida. Reintentando...');
+                updateConnectionStatus(false);
+                setTimeout(connectWebSocket, 3000);
+            };
+            
+            ws.onerror = function(error) {
+                addLog('❌ Error en WebSocket: ' + error);
+                updateConnectionStatus(false);
+            };
+        }
+        
+        function handleWebSocketMessage(data) {
+            switch(data.type) {
+                case 'bot_status':
+                    updateBotStatus(data.data);
+                    break;
+                case 'command_executed':
+                    addLog(`⚡ Comando ejecutado: /${data.data.command} por ${data.data.username}`);
+                    break;
+                case 'server_joined':
+                    addLog(`📥 Bot se unió a: ${data.data.serverName}`);
+                    break;
+                case 'server_left':
+                    addLog(`📤 Bot salió de: ${data.data.serverName}`);
+                    break;
+                case 'bot_error':
+                    addLog(`❌ Error del bot: ${data.data.error}`);
+                    break;
+                case 'moderation_action':
+                    addLog(`🛡️ Moderación: ${data.data.violationType} eliminado de ${data.data.username} en #${data.data.channelName}`);
+                    break;
+                case 'user_redirected':
+                    addLog(`🎭 Usuario redirigido: ${data.data.username} de #${data.data.fromChannel} a #${data.data.toChannel}`);
+                    break;
+                case 'message_activity':
+                    addLog(`💬 Actividad: ${data.data.username} en #${data.data.channelName}`);
+                    break;
+            }
+        }
+        
+        function updateBotStatus(status) {
+            document.getElementById('bot-status').textContent = status.ready ? 'En línea' : 'Desconectado';
+            document.getElementById('guild-count').textContent = status.guilds || 0;
+            document.getElementById('user-count').textContent = status.users || 0;
+            document.getElementById('uptime').textContent = status.uptime || '0h 0m';
+            
+            const indicator = document.getElementById('status-indicator');
+            if (status.ready) {
+                indicator.className = 'status status-online';
+                indicator.querySelector('span').textContent = 'Bot operativo';
+            } else {
+                indicator.className = 'status status-offline';
+                indicator.querySelector('span').textContent = 'Bot desconectado';
+            }
+        }
+        
+        function updateConnectionStatus(connected) {
+            // Actualiza el estado de conexión visual si es necesario
+        }
+        
+        function addLog(message) {
+            const container = document.getElementById('log-container');
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            entry.textContent = `${new Date().toLocaleTimeString()} - ${message}`;
+            container.appendChild(entry);
+            
+            // Mantener solo los últimos 50 logs
+            while (container.children.length > 50) {
+                container.removeChild(container.firstChild);
+            }
+            
+            container.scrollTop = container.scrollHeight;
+        }
+        
+        function restartBot() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.send(JSON.stringify({ type: 'restart_bot' }));
+                addLog('🔄 Reinicio del bot solicitado');
+            } else {
+                fetch('/api/restart', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        addLog('🔄 ' + data.message);
+                    })
+                    .catch(error => {
+                        addLog('❌ Error al reiniciar: ' + error);
+                    });
+            }
+        }
+        
+        function refreshStatus() {
+            fetch('/api/status')
+                .then(response => response.json())
+                .then(data => {
+                    updateBotStatus(data);
+                    addLog('📊 Estado actualizado');
+                })
+                .catch(error => {
+                    addLog('❌ Error al obtener estado: ' + error);
+                });
+        }
+        
+        // Conectar al WebSocket al cargar la página
+        connectWebSocket();
+        
+        // Actualizar estado cada 30 segundos
+        setInterval(refreshStatus, 30000);
+    </script>
+</body>
+</html>
