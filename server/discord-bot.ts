@@ -172,12 +172,31 @@ export class DiscordBot {
   ];
 
   private adPatterns = [
-    /compra|venta|vendo|buy|sell/gi,
-    /precio|price|€|\$|usd|eur/gi,
-    /tienda|shop|store/gi,
-    /descuento|discount|oferta|offer/gi,
-    /amazon|mercadolibre|ebay/gi,
+    /vendo|buy|sell/gi,
+    /price|€|\$|usd|eur/gi,
+    /shop|store/gi,
+    /discount|offer/gi,
+    /mercadolibre|ebay/gi,
   ];
+  private insultPatterns = [
+    /est[úu]pido|est[úu]pida/gi,
+    /imb[ée]cil/gi,
+    /idiota|tarad[oa]/gi,
+    /mierda|m1erda|mierd[@a]/gi,
+    /pendej[oa]/gi,
+    /culi[áa]o|cul[íi]ao/gi,
+    /we[óo]n|huev[óo]n|wea/gi,
+    /conchetumadre|ctm|ctmr/gi,
+    /maric[óo]n/gi,
+    /bastardo|bastarda/gi,
+    /fuck|f[^\w]?u[^\w]?c[^\w]?k/gi,
+    /shit|sh[^\w]?i[^\w]?t/gi,
+    /asshole/gi,
+    /bitch|b1tch|bi+ch/gi,
+    /idiot|dumb|moron|jerk|loser/gi
+  ];
+  
+
 
   // Configuración de canales (esto se debería guardar en base de datos)
   private channelConfig = {
@@ -195,10 +214,21 @@ export class DiscordBot {
       const isSpam = this.spamPatterns.some(pattern => pattern.test(content));
       const isSteamScam = this.steamScamPatterns.some(pattern => pattern.test(content));
       const isAd = this.adPatterns.some(pattern => pattern.test(content));
-
+      const isInsult = this.insultPatterns.some(pattern => pattern.test(content));
       // Acciones de moderación
-      if (isSpam || isSteamScam || isAd) {
-        await this.handleViolation(message, isSpam ? 'spam' : isSteamScam ? 'scam' : 'ad');
+      if (isSpam || isSteamScam || isAd|| isInsult) {
+        await this.handleViolation(
+          message,
+            isSpam
+              ? 'spam'
+              : isSteamScam
+              ? 'scam'
+              : isAd
+              ? 'ad'
+              : isInsult
+              ? 'insult'
+              : 'unknown' // Fallback value required to avoid syntax error
+          );
         return;
       }
 
@@ -244,7 +274,15 @@ export class DiscordBot {
           `💼 **${message.author.username}**, la publicidad no autorizada es mala para los negocios. *elimina el mensaje*`,
           `🏛️ La familia tiene reglas sobre el comercio, **${message.author.username}**. Respétalas.`,
           `📜 Las reglas de la casa son claras: no publicidad sin permiso, **${message.author.username}**.`
+        ],
+        insult: [
+          `🗯️ **${message.author.username}**, en esta familia nos hablamos con respeto. Ese lenguaje no será tolerado.`,
+          `😤 Las ofensas no hacen parte de los negocios de la familia, **${message.author.username}**.`,
+          `👊 Don Corleone no permite insultos en su mesa, **${message.author.username}**. Sé más sabio la próxima vez.`,
+          `🤐 El respeto es ley en esta casa, **${message.author.username}**. Tu mensaje fue eliminado.`,
+          `⚠️ Insultar a otro miembro de la familia tiene consecuencias, **${message.author.username}**.`
         ]
+
       };
 
       const messages = mafiaMessages[violationType as keyof typeof mafiaMessages];
@@ -274,6 +312,14 @@ export class DiscordBot {
           timestamp: Date.now()
         }
       });
+      // ID del canal de advertencias donde se va a enviar el log
+      const warningChannelId = '1383181444142207198';
+
+      // Obtener el canal de advertencias
+      const warningChannel = this.client.channels.cache.get(warningChannelId);
+      if (warningChannel && warningChannel.isTextBased()) {
+        await warningChannel.send(`🛡️ Moderación automática: **${violationType}** eliminado de **${message.author.username}** en #${message.channel.name}. Contenido:    "${message.content.substring(0, 100)}"`);
+      }
 
       console.log(`🛡️ Moderación automática: ${violationType} eliminado de ${message.author.username}`);
 
