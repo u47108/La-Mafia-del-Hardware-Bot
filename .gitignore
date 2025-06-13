@@ -12,7 +12,19 @@ bin-release/
 *.air
 *.ipa
 *.apk
+# Archivos de configuración de entorno
+.env
 
+# Directorios y archivos de dependencias
+node_modules/
+
+# Archivos de compilación
+dist/
+build/
+
+# Archivos temporales
+*.log
+*.tmp
 # Project files, i.e. `.project`, `.actionScriptProperties` and `.flexProperties`
 # should NOT be excluded as they contain compiler settings and other important
 # information for Eclipse / Flash Builder.
