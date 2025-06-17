@@ -176,7 +176,6 @@ export class DiscordBot {
     /price|€|\$|usd|eur/gi,
     /shop|store/gi,
     /discount|offer/gi,
-    /|/gi,
   ];
   private insultPatterns = [
     /est[úu]pido|est[úu]pida/gi,
