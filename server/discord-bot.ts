@@ -173,7 +173,7 @@ export class DiscordBot {
 
   private adPatterns = [
     /buy|sell/gi,
-    /price|€|\$|usd|eur/gi,
+    /price|€|eur/gi,
     /shop|store/gi,
     /discount|offer/gi,
   ];
@@ -214,7 +214,7 @@ export class DiscordBot {
       const isSteamScam = this.steamScamPatterns.some(pattern => pattern.test(content));
       const isAd = this.adPatterns.some(pattern => pattern.test(content));
       const isInsult = this.insultPatterns.some(pattern => pattern.test(content));
-      const ignoredChannels = ['1382845083560443994'];
+      const ignoredChannels = ['1382845083560443994','1385132042643050537'];
       if (ignoredChannels.includes(message.channelId)) return;
       // Acciones de moderación
       if (isSpam || isSteamScam || isAd|| isInsult) {
